@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Foi de Parcurs ANAF</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @media print {
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10pt; }
+      .print-table th, .print-table td { border: 1px solid #000; padding: 6px; text-align: left; }
+      .print-signatures { display: flex !important; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-16">
+
+  <!-- Header -->
+  <header class="bg-indigo-900 text-white p-4 shadow-md sticky top-0 z-50 no-print flex justify-between items-center">
+    <div>
+      <h1 class="text-lg font-bold flex items-center gap-2">
+        <i class="fa-solid fa-car"></i> Foi de Parcurs ANAF
+      </h1>
+      <p class="text-xs text-indigo-200">Gestionare & Calcul Automat Traseu</p>
+    </div>
+    <button id="pwa-install-btn" onclick="openInstallModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow transition flex items-center gap-1.5">
+      <i class="fa-solid fa-download"></i> Instalează App
+    </button>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="bg-white border-b border-slate-200 sticky top-[57px] z-40 no-print flex shadow-sm">
+    <button onclick="switchTab('add')" id="tab-btn-add" class="tab-btn flex-1 py-3 text-center text-xs sm:text-sm font-semibold border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center justify-center gap-1">
+      <i class="fa-solid fa-plus-circle"></i> + Cursă
+    </button>
+    <button onclick="switchTab('history')" id="tab-btn-history" class="tab-btn flex-1 py-3 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1">
+      <i class="fa-solid fa-list-check"></i> Istoric
+    </button>
+    <button onclick="switchTab('vehicles')" id="tab-btn-vehicles" class="tab-btn flex-1 py-3 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1">
+      <i class="fa-solid fa-car-side"></i> Mașini
+    </button>
+    <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn flex-1 py-3 text-center text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 flex items-center justify-center gap-1">
+      <i class="fa-solid fa-gear"></i> Setări
+    </button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="max-w-3xl mx-auto p-4">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-lg shadow-xl z-50 text-sm flex items-center gap-2 border-l-4 border-emerald-500 transition-all">
+      <i class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toast-msg">Acțiune realizată cu succes!</span>
+    </div>
+
+    <!-- Modal Ghid Instalare PWA -->
+    <div id="install-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+        <button onclick="closeInstallModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+        <h3 class="text-lg font-bold text-indigo-900 mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-mobile-screen-button"></i> Cum instalezi aplicația
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">Deoarece fișierul este deschis local în browser, folosește una dintre opțiunile de mai jos:</p>
+        
+        <div class="space-y-3 text-xs text-slate-700">
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-brands fa-chrome text-emerald-600"></i> În Google Chrome (Android / PC):</p>
+            <p>1. Apasă pe cele <strong>3 puncte</strong> din dreapta-sus.</p>
+            <p>2. Alege <strong>Instalează aplicația</strong> sau <strong>Adaugă pe ecranul de start</strong>.</p>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <p class="font-bold text-slate-800 mb-1"><i class="fa-brands fa-apple text-slate-800"></i> În Safari (iPhone / iPad):</p>
+            <p>1. Apasă butonul de <strong>Share (Partajare)</strong> din josul ecranului.</p>
+            <p>2. Selectează <strong>Adaugă pe ecranul principal (Add to Home Screen)</strong>.</p>
+          </div>
+        </div>
+
+        <button onclick="closeInstallModal()" class="w-full mt-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs transition">
+          Am înțeles
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: ADAUGA / EDITEAZA CURSA -->
+    <section id="tab-add" class="tab-content">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 id="form-title" class="text-base font-bold text-indigo-900 mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+          <span>Adaugă Cursă Nouă</span>
+          <span class="text-xs font-normal text-slate-400">ANAF Compliance</span>
+        </h2>
+        <form id="trip-form" onsubmit="handleSaveTrip(event)" class="space-y-4">
+          <input type="hidden" id="trip-id">
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-vehicle">Vehicul Selectat</label>
+            <select id="trip-vehicle" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" onchange="autoFillKmPlecare()" required></select>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-date-start">Data & Ora Plecare</label>
+              <input type="datetime-local" id="trip-date-start" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-date-end">Data & Ora Sosire</label>
+              <input type="datetime-local" id="trip-date-end" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-route">Rută / Traseu (Plecare - Sosire)</label>
+            <input type="text" id="trip-route" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" placeholder="ex: Pitești - București" required>
+            <button type="button" onclick="calculateDistanceWithMaps()" class="mt-2 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-2 rounded-lg w-full flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-map-location-dot"></i> Deschide Maps & Calculează Km
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-km-start">Km Plecare</label>
+              <input type="number" id="trip-km-start" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" step="0.1" oninput="calculateTripTotals()" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-km-end">Km Sosire</label>
+              <input type="number" id="trip-km-end" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" step="0.1" oninput="calculateTripTotals()" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1" for="trip-km-total">Total Km Cursă</label>
+              <input type="number" id="trip-km-total" class="w-full p-2 bg-slate-200 text-slate-900 font-bold rounded text-sm border-0 cursor-not-allowed" readonly>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1" for="trip-fuel">Consum Estimat (L)</label>
+              <input type="number" id="trip-fuel" class="w-full p-2 bg-slate-200 text-slate-900 font-bold rounded text-sm border-0 cursor-not-allowed" readonly>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-purpose">Scopul Deplasării (Pentru Regim Fiscal ANAF)</label>
+            <input type="text" id="trip-purpose" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" placeholder="ex: Vizită client, Livrare marfă, Interes de serviciu" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-driver">Nume Șofer</label>
+            <input type="text" id="trip-driver" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" placeholder="ex: Ion Popescu" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="trip-notes">Observații / Bon Carburant (Opțional)</label>
+            <input type="text" id="trip-notes" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition" placeholder="ex: Bon fiscal #1042, alimentat 40L">
+          </div>
+
+          <button type="submit" id="btn-save-trip" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Salvează Cursa
+          </button>
+          <button type="button" id="btn-cancel-edit" onclick="resetTripForm()" class="hidden w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg transition">
+            Renunță la Editare
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 2: ISTORIC & EDITARE -->
+    <section id="tab-history" class="tab-content hidden">
+      <div class="flex flex-col sm:flex-row gap-3 mb-4 no-print">
+        <select id="filter-month" onchange="renderHistory()" class="flex-1 p-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 shadow-sm outline-none focus:border-indigo-500"></select>
+        <select id="filter-vehicle" onchange="renderHistory()" class="flex-1 p-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-800 shadow-sm outline-none focus:border-indigo-500"></select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4 no-print">
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+          <p class="text-xs text-slate-500 font-semibold">Total Kilometri</p>
+          <p id="stat-total-km" class="text-xl font-bold text-indigo-700 mt-1">0 km</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+          <p class="text-xs text-slate-500 font-semibold">Consum Total Estimat</p>
+          <p id="stat-total-fuel" class="text-xl font-bold text-indigo-700 mt-1">0 L</p>
+        </div>
+      </div>
+
+      <div id="print-header-area" class="print-only mb-6 border-b-2 border-black pb-3"></div>
+
+      <div id="trips-list" class="space-y-3 no-print"></div>
+
+      <table class="print-table print-only">
+        <thead>
+          <tr>
+            <th>Data/Ora</th>
+            <th>Traseu / Rută</th>
+            <th>Km Plecare</th>
+            <th>Km Sosire</th>
+            <th>Total Km</th>
+            <th>Consum (L)</th>
+            <th>Scop Deplasare</th>
+            <th>Șofer</th>
+          </tr>
+        </thead>
+        <tbody id="print-table-body"></tbody>
+      </table>
+
+      <div class="print-signatures print-only">
+        <div>
+          <p><strong>Întocmit (Șofer):</strong></p>
+          <br><br>
+          <p>Semnătura: _______________</p>
+        </div>
+        <div>
+          <p><strong>Aprobat (Administrator):</strong></p>
+          <br><br>
+          <p>Semnătura: _______________</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-5 no-print">
+        <button onclick="window.print()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow transition flex items-center justify-center gap-2 text-sm">
+          <i class="fa-solid fa-print"></i> Tipărește / PDF
+        </button>
+        <button onclick="exportCSV()" class="flex-1 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-2 text-sm">
+          <i class="fa-solid fa-file-excel text-emerald-600"></i> Export CSV
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 3: MANAGEMENT MASINI -->
+    <section id="tab-vehicles" class="tab-content hidden space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-indigo-900 mb-4 pb-2 border-b border-slate-100">Adaugă / Editează Vehicul</h2>
+        <form onsubmit="handleSaveVehicle(event)" class="space-y-3">
+          <input type="hidden" id="veh-id">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="veh-nr">Număr Înmatriculare</label>
+            <input type="text" id="veh-nr" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: AG 01 ABC" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="veh-model">Marca & Model</label>
+            <input type="text" id="veh-model" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: Dacia Logan" required>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="veh-consumption">Normă Consum (L/100km)</label>
+              <input type="number" id="veh-consumption" step="0.1" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: 6.5" required>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1" for="veh-fuel">Combustibil</label>
+              <select id="veh-fuel" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option value="Motorină">Motorină</option>
+                <option value="Benzină">Benzină</option>
+                <option value="GPL">GPL</option>
+                <option value="Hibrid">Hibrid</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
+            Salvează Vehicul
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-indigo-900 mb-3 border-b border-slate-100 pb-2">Vehicule Înregistrate</h2>
+        <div id="vehicles-list" class="divide-y divide-slate-100"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: SETARI FIRMA & BACKUP -->
+    <section id="tab-settings" class="tab-content hidden space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-indigo-900 mb-4 pb-2 border-b border-slate-100">Date Companie (Pentru Antet Foaie de Parcurs)</h2>
+        <form onsubmit="handleSaveCompany(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="comp-name">Nume Companie / PFA</label>
+            <input type="text" id="comp-name" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: SC TRANSPORT SRL" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="comp-cui">CUI / CIF</label>
+            <input type="text" id="comp-cui" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: RO12345678" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1" for="comp-address">Adresă Sediu Social</label>
+            <input type="text" id="comp-address" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ex: Str. Victoriei nr. 1, Pitești">
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition">
+            Salvează Date Firmă
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-bold text-indigo-900 mb-2">Backup & Restaurare Date</h2>
+        <p class="text-xs text-slate-500 mb-4">Exportă sau importă baza de date locală într-un fișier JSON securizat.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button onclick="exportBackup()" class="py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2">
+            <i class="fa-solid fa-download text-indigo-600"></i> Descarcă Backup (JSON)
+          </button>
+          <button onclick="document.getElementById('import-file').click()" class="py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold rounded-lg shadow-sm transition text-xs flex items-center justify-center gap-2">
+            <i class="fa-solid fa-upload text-indigo-600"></i> Importă Date din Fișier
+          </button>
+          <input type="file" id="import-file" class="hidden" onchange="importBackup(event)" accept=".json">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let appState = {
+      company: { name: '', cui: '', address: '' },
+      vehicles: [],
+      trips: []
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      setDefaultDates();
+      populateMonthFilter();
+      renderVehiclesSelect();
+      renderVehiclesList();
+      renderHistory();
+      fillCompanyForm();
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function openInstallModal() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('Aplicația a fost instalată!');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        document.getElementById('install-modal').classList.remove('hidden');
+      }
+    }
+
+    function closeInstallModal() {
+      document.getElementById('install-modal').classList.add('hidden');
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem('foaie_parcurs_data');
+      if (saved) {
+        try {
+          appState = JSON.parse(saved);
+        } catch(e) { console.error('Eroare încărcare date:', e); }
+      }
+      
+      if (!appState.vehicles || appState.vehicles.length === 0) {
+        appState.vehicles = [{
+          id: 'v1',
+          nr: 'AG 01 ABC',
+          model: 'Dacia Logan',
+          consumption: 6.0,
+          fuel: 'Motorină'
+        }];
+        saveState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('foaie_parcurs_data', JSON.stringify(appState));
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
+        el.classList.add('border-transparent', 'text-slate-500');
+      });
+      
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
+        activeBtn.classList.remove('border-transparent', 'text-slate-500');
+      }
+
+      if (tabId === 'history') {
+        renderHistory();
+      }
+    }
+
+    function setDefaultDates() {
+      const now = new Date();
+      const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      document.getElementById('trip-date-start').value = localNow;
+      document.getElementById('trip-date-end').value = localNow;
+    }
+
+    function renderVehiclesSelect() {
+      const selectTrip = document.getElementById('trip-vehicle');
+      const selectFilter = document.getElementById('filter-vehicle');
+      
+      selectTrip.innerHTML = '';
+      selectFilter.innerHTML = '<option value="ALL">Toate Vehiculele</option>';
+
+      appState.vehicles.forEach(v => {
+        selectTrip.innerHTML += `<option value="${v.id}">${v.nr} (${v.model})</option>`;
+        selectFilter.innerHTML += `<option value="${v.id}">${v.nr} (${v.model})</option>`;
+      });
+
+      autoFillKmPlecare();
+    }
+
+    function autoFillKmPlecare() {
+      const vehId = document.getElementById('trip-vehicle').value;
+      if (!vehId) return;
+
+      const vehTrips = appState.trips
+        .filter(t => t.vehicleId === vehId)
+        .sort((a, b) => new Date(b.dateEnd) - new Date(a.dateEnd));
+
+      if (vehTrips.length > 0) {
+        document.getElementById('trip-km-start').value = vehTrips[0].kmEnd;
+      } else {
+        document.getElementById('trip-km-start').value = 0;
+      }
+      calculateTripTotals();
+    }
+
+    function calculateTripTotals() {
+      const kmStart = parseFloat(document.getElementById('trip-km-start').value) || 0;
+      const kmEnd = parseFloat(document.getElementById('trip-km-end').value) || 0;
+      const vehId = document.getElementById('trip-vehicle').value;
+      
+      const vehicle = appState.vehicles.find(v => v.id === vehId);
+      const consumptionRate = vehicle ? vehicle.consumption : 6.0;
+
+      const totalKm = Math.max(0, kmEnd - kmStart);
+      const totalFuel = (totalKm * consumptionRate) / 100;
+
+      document.getElementById('trip-km-total').value = totalKm.toFixed(1);
+      document.getElementById('trip-fuel').value = totalFuel.toFixed(1);
+    }
+
+    function calculateDistanceWithMaps() {
+      const routeText = document.getElementById('trip-route').value.trim();
+      if (!routeText) {
+        showToast('Introdu mai întâi o rută (ex: Pitesti - Bucuresti)');
+        return;
+      }
+
+      let parts = routeText.split(/[-–—]| la | spre /i);
+      let origin = parts[0] ? parts[0].trim() : '';
+      let destination = parts[1] ? parts[1].trim() : '';
+
+      if (!origin || !destination) {
+        showToast('Folosește formatul "Plecare - Sosire"');
+        return;
+      }
+
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+      window.open(mapsUrl, '_blank');
+
+      setTimeout(() => {
+        const kmEntered = prompt(`Google Maps deschis pentru: "${origin}" -> "${destination}".
+
+Câți kilometri indică harta?`);
+        if (kmEntered !== null && !isNaN(parseFloat(kmEntered))) {
+          const distanceKm = parseFloat(kmEntered);
+          const kmStart = parseFloat(document.getElementById('trip-km-start').value) || 0;
+          document.getElementById('trip-km-end').value = (kmStart + distanceKm).toFixed(1);
+          calculateTripTotals();
+        }
+      }, 500);
+    }
+
+    function handleSaveTrip(e) {
+      e.preventDefault();
+      const id = document.getElementById('trip-id').value;
+      
+      const tripData = {
+        id: id || 'trip_' + Date.now(),
+        vehicleId: document.getElementById('trip-vehicle').value,
+        dateStart: document.getElementById('trip-date-start').value,
+        dateEnd: document.getElementById('trip-date-end').value,
+        route: document.getElementById('trip-route').value,
+        kmStart: parseFloat(document.getElementById('trip-km-start').value),
+        kmEnd: parseFloat(document.getElementById('trip-km-end').value),
+        kmTotal: parseFloat(document.getElementById('trip-km-total').value),
+        fuel: parseFloat(document.getElementById('trip-fuel').value),
+        purpose: document.getElementById('trip-purpose').value,
+        driver: document.getElementById('trip-driver').value,
+        notes: document.getElementById('trip-notes').value
+      };
+
+      if (id) {
+        const index = appState.trips.findIndex(t => t.id === id);
+        if (index !== -1) appState.trips[index] = tripData;
+      } else {
+        appState.trips.push(tripData);
+      }
+
+      saveState();
+      resetTripForm();
+      showToast('Cursa a fost salvată cu succes!');
+      switchTab('history');
+    }
+
+    function editTrip(id) {
+      const trip = appState.trips.find(t => t.id === id);
+      if (!trip) return;
+
+      document.getElementById('trip-id').value = trip.id;
+      document.getElementById('trip-vehicle').value = trip.vehicleId;
+      document.getElementById('trip-date-start').value = trip.dateStart;
+      document.getElementById('trip-date-end').value = trip.dateEnd;
+      document.getElementById('trip-route').value = trip.route;
+      document.getElementById('trip-km-start').value = trip.kmStart;
+      document.getElementById('trip-km-end').value = trip.kmEnd;
+      document.getElementById('trip-km-total').value = trip.kmTotal;
+      document.getElementById('trip-fuel').value = trip.fuel;
+      document.getElementById('trip-purpose').value = trip.purpose;
+      document.getElementById('trip-driver').value = trip.driver;
+      document.getElementById('trip-notes').value = trip.notes || '';
+
+      document.getElementById('form-title').children[0].innerText = 'Editează Cursa';
+      document.getElementById('btn-save-trip').innerText = 'Actualizează Cursa';
+      document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+      switchTab('add');
+    }
+
+    function deleteTrip(id) {
+      if (confirm('Sigur dorești să ștergi această cursă?')) {
+        appState.trips = appState.trips.filter(t => t.id !== id);
+        saveState();
+        renderHistory();
+        showToast('Cursă ștearsă.');
+      }
+    }
+
+    function resetTripForm() {
+      document.getElementById('trip-id').value = '';
+      document.getElementById('trip-form').reset();
+      document.getElementById('form-title').children[0].innerText = 'Adaugă Cursă Nouă';
+      document.getElementById('btn-save-trip').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvează Cursa';
+      document.getElementById('btn-cancel-edit').classList.add('hidden');
+      setDefaultDates();
+      autoFillKmPlecare();
+    }
+
+    function populateMonthFilter() {
+      const select = document.getElementById('filter-month');
+      select.innerHTML = '<option value="ALL">Toate Lunile</option>';
+      
+      const months = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+      const currentYear = new Date().getFullYear();
+      
+      months.forEach((m, idx) => {
+        const val = `${currentYear}-${String(idx + 1).padStart(2, '0')}`;
+        select.innerHTML += `<option value="${val}">${m} ${currentYear}</option>`;
+      });
+
+      const currentMonthVal = `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+      select.value = currentMonthVal;
+    }
+
+    function renderHistory() {
+      const monthFilter = document.getElementById('filter-month').value;
+      const vehicleFilter = document.getElementById('filter-vehicle').value;
+      const container = document.getElementById('trips-list');
+      const printTableBody = document.getElementById('print-table-body');
+      
+      container.innerHTML = '';
+      printTableBody.innerHTML = '';
+
+      let filtered = appState.trips.filter(t => {
+        let matchMonth = (monthFilter === 'ALL') || t.dateStart.startsWith(monthFilter);
+        let matchVehicle = (vehicleFilter === 'ALL') || t.vehicleId === vehicleFilter;
+        return matchMonth && matchVehicle;
+      });
+
+      filtered.sort((a, b) => new Date(b.dateStart) - new Date(a.dateStart));
+
+      let totalKm = 0;
+      let totalFuel = 0;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">Nu există curse înregistrate pentru selecția curentă.</div>';
+      } else {
+        filtered.forEach(t => {
+          totalKm += t.kmTotal;
+          totalFuel += t.fuel;
+
+          const veh = appState.vehicles.find(v => v.id === t.vehicleId) || { nr: 'N/A' };
+          const dateStr = new Date(t.dateStart).toLocaleString('ro-RO', { dateStyle: 'short', timeStyle: 'short' });
+
+          container.innerHTML += `
+            <div class="bg-white rounded-xl p-4 border border-slate-200 border-l-4 border-l-indigo-600 shadow-sm">
+              <div class="flex justify-between items-center text-xs font-semibold text-slate-500 mb-1">
+                <span><i class="fa-regular fa-calendar mr-1"></i> ${dateStr}</span>
+                <span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-[11px]">${veh.nr}</span>
+              </div>
+              <div class="text-sm font-bold text-slate-800 mb-2"><i class="fa-solid fa-location-dot text-indigo-600 mr-1"></i> ${t.route}</div>
+              <div class="grid grid-cols-2 gap-1 text-xs text-slate-600 mb-3 bg-slate-50 p-2 rounded border border-slate-100">
+                <div><strong>Km:</strong> ${t.kmStart} ➔ ${t.kmEnd} (${t.kmTotal} km)</div>
+                <div><strong>Consum:</strong> ${t.fuel} L</div>
+                <div><strong>Șofer:</strong> ${t.driver}</div>
+                <div><strong>Scop:</strong> ${t.purpose}</div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button onclick="editTrip('${t.id}')" class="text-xs px-2.5 py-1 text-slate-600 border border-slate-300 rounded hover:bg-slate-50 transition"><i class="fa-solid fa-pen"></i> Editează</button>
+                <button onclick="deleteTrip('${t.id}')" class="text-xs px-2.5 py-1 text-rose-600 border border-rose-200 rounded hover:bg-rose-50 transition"><i class="fa-solid fa-trash"></i> Șterge</button>
+              </div>
+            </div>
+          `;
+
+          printTableBody.innerHTML += `
+            <tr>
+              <td>${dateStr}</td>
+              <td>${t.route}</td>
+              <td>${t.kmStart}</td>
+              <td>${t.kmEnd}</td>
+              <td>${t.kmTotal}</td>
+              <td>${t.fuel}</td>
+              <td>${t.purpose}</td>
+              <td>${t.driver}</td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById('stat-total-km').innerText = `${totalKm.toFixed(1)} km`;
+      document.getElementById('stat-total-fuel').innerText = `${totalFuel.toFixed(1)} L`;
+
+      const comp = appState.company;
+      document.getElementById('print-header-area').innerHTML = `
+        <h2 class="text-xl font-bold">FOAIE DE PARCURS</h2>
+        <p class="text-sm"><strong>Companie:</strong> ${comp.name || 'Nespecificat'} | <strong>CUI:</strong> ${comp.cui || 'Nespecificat'}</p>
+        <p class="text-sm"><strong>Perioadă:</strong> ${monthFilter} | <strong>Total Km:</strong> ${totalKm.toFixed(1)} km | <strong>Total Consum:</strong> ${totalFuel.toFixed(1)} L</p>
+      `;
+    }
+
+    function handleSaveVehicle(e) {
+      e.preventDefault();
+      const vehData = {
+        id: 'v_' + Date.now(),
+        nr: document.getElementById('veh-nr').value.toUpperCase(),
+        model: document.getElementById('veh-model').value,
+        consumption: parseFloat(document.getElementById('veh-consumption').value),
+        fuel: document.getElementById('veh-fuel').value
+      };
+
+      appState.vehicles.push(vehData);
+      saveState();
+      renderVehiclesSelect();
+      renderVehiclesList();
+      e.target.reset();
+      showToast('Vehicul adăugat!');
+    }
+
+    function renderVehiclesList() {
+      const container = document.getElementById('vehicles-list');
+      container.innerHTML = '';
+      
+      appState.vehicles.forEach(v => {
+        container.innerHTML += `
+          <div class="flex justify-between items-center py-2.5">
+            <div>
+              <p class="text-sm font-bold text-slate-800">${v.nr} <span class="font-normal text-xs text-slate-500">(${v.model})</span></p>
+              <p class="text-xs text-slate-500">${v.consumption} L/100km • ${v.fuel}</p>
+            </div>
+            ${appState.vehicles.length > 1 ? `<button onclick="deleteVehicle('${v.id}')" class="text-xs px-2 py-1 text-rose-600 border border-rose-200 rounded hover:bg-rose-50 transition">Șterge</button>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function deleteVehicle(id) {
+      if (confirm('Ștergi acest vehicul?')) {
+        appState.vehicles = appState.vehicles.filter(v => v.id !== id);
+        saveState();
+        renderVehiclesSelect();
+        renderVehiclesList();
+        showToast('Vehicul șters.');
+      }
+    }
+
+    function handleSaveCompany(e) {
+      e.preventDefault();
+      appState.company = {
+        name: document.getElementById('comp-name').value,
+        cui: document.getElementById('comp-cui').value,
+        address: document.getElementById('comp-address').value
+      };
+      saveState();
+      showToast('Datele firmei au fost salvate!');
+    }
+
+    function fillCompanyForm() {
+      if (appState.company) {
+        document.getElementById('comp-name').value = appState.company.name || '';
+        document.getElementById('comp-cui').value = appState.company.cui || '';
+        document.getElementById('comp-address').value = appState.company.address || '';
+      }
+    }
+
+    function exportCSV() {
+      let csv = 'Data/Ora,Vehicul,Ruta,Km Plecare,Km Sosire,Total Km,Consum Estimat (L),Scop Deplasare,Sofer,Observatii\n';
+      
+      appState.trips.forEach(t => {
+        const veh = appState.vehicles.find(v => v.id === t.vehicleId) || { nr: '' };
+        csv += `"${t.dateStart}","${veh.nr}","${t.route}",${t.kmStart},${t.kmEnd},${t.kmTotal},${t.fuel},"${t.purpose}","${t.driver}","${t.notes || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Foi_de_parcurs_${new Date().toISOString().slice(0,10)}.csv`;
+      link.click();
+    }
+
+    function exportBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `backup_foi_parcurs_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const importedData = JSON.parse(event.target.result);
+          if (importedData.vehicles && importedData.trips) {
+            appState = importedData;
+            saveState();
+            location.reload();
+          } else {
+            alert('Fișierul de backup este invalid!');
+          }
+        } catch (err) {
+          alert('Eroare la citirea fișierului!');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+  </script>
+</body>
+</html>
